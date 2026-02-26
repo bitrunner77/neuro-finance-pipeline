@@ -1,0 +1,8 @@
+{
+  "agent": "coder",
+  "status": "idle",
+  "current_task": null,
+  "last_updated": "2026-02-26T10:14:00+08:00",
+  "blockers": [],
+  "notes": "Agent initialized, awaiting first assignment from PM"
+}
