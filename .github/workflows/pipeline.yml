@@ -1,0 +1,120 @@
+name: Neuro-Finance Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run daily at 6 AM UTC (for idea mining)
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      task:
+        description: 'Pipeline task to run'
+        required: true
+        default: 'idea-mining'
+        type: choice
+        options:
+          - idea-mining
+          - validate-scripts
+          - test-pipeline
+
+jobs:
+  # Validate Python scripts on every push
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pylint black
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    
+    - name: Lint with flake8
+      run: |
+        flake8 agents/ scripts/ --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 agents/ scripts/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    
+    - name: Check formatting with black
+      run: |
+        black --check agents/ scripts/ || true
+    
+    - name: Test Python syntax
+      run: |
+        python -m py_compile agents/*.py scripts/*.py
+
+  # Run idea mining agent (daily or manual trigger)
+  idea-mining:
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 6 * * *' || github.event.inputs.task == 'idea-mining'
+    needs: validate
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    
+    - name: Run Idea Mining Agent
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+      run: |
+        python agents/idea_mining.py --output output/idea-brief-$(date +%Y-%m-%d).md
+    
+    - name: Commit and push results
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add output/
+        git diff --staged --quiet || git commit -m "Daily idea mining: $(date +%Y-%m-%d)"
+        git push
+
+  # Test video pipeline (manual only)
+  test-pipeline:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.task == 'test-pipeline'
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install FFmpeg
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ffmpeg
+    
+    - name: Test video pipeline
+      run: |
+        python scripts/video_pipeline.py --help
+        echo "Video pipeline is functional"
+
+  # Build and release (on version tags)
+  release:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: validate
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false

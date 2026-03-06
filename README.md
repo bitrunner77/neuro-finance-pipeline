@@ -1,82 +1,98 @@
-# Neuro-Finance YouTube Channel — Project Brief
+# Neuro-Finance Pipeline
 
-## Vision
-Faceless YouTube channel at the intersection of **finance** and **psychology** — explaining why smart people make dumb money decisions.
+[![Pipeline](https://github.com/bitrunner77/neuro-finance-pipeline/actions/workflows/pipeline.yml/badge.svg)](https://github.com/bitrunner77/neuro-finance-pipeline/actions/workflows/pipeline.yml)
 
-## The Opportunity
-- **Niche:** Behavioral finance / market psychology
-- **RPM:** $15-25 (high CPM finance niche)
-- **Competition:** Low for AI-generated, high-production content
-- **Timeline:** 90 days to monetization threshold
+Automated video production pipeline for the Neuro-Finance YouTube channel — where behavioral finance meets psychology.
 
-## Content Pillars
+## 🎯 What This Does
 
-### 1. Cognitive Biases in Trading
-- Why your brain sabotages your trades
-- The dopamine trap of day trading
-- Loss aversion: Why you hold losers too long
+1. **Idea Mining** — AI agents scan YouTube, Reddit, and X for trending behavioral finance topics
+2. **Content Scoring** — Ranks ideas by engagement potential and competition
+3. **Script Generation** — AI writes video scripts based on top-ranked ideas
+4. **Video Production** — FFmpeg pipeline for thumbnails, clips, and post-processing
 
-### 2. Market Psychology
-- Fear and greed cycles explained
-- Why markets crash when everyone is bullish
-- The herd mentality of retail investors
+## 🚀 Quick Start
 
-### 3. Money Mindset
-- Scarcity vs. abundance mindset
-- Why lottery winners go broke
-- The psychology of wealth building
+```bash
+# Clone the repo
+git clone https://github.com/bitrunner77/neuro-finance-pipeline.git
+cd neuro-finance-pipeline
 
-## Production Workflow
+# Set up environment
+cp .env.example .env
+# Edit .env with your API keys
 
-### Phase 1: Idea Mining (Daily)
-- YT Agent analyzes comments + competitors
-- Research Agent scans trends
-- Scoring Agent ranks ideas
-- Output: Idea Mining Brief
+# Install dependencies
+pip install -r requirements.txt
 
-### Phase 2: Script Generation (Per video)
-- AI writes script based on brief
-- Human review for accuracy
-- Final polish
+# Run idea mining
+python agents/idea_mining.py
 
-### Phase 3: Production (Per video)
-- AI voiceover (ElevenLabs)
-- AI visuals (Midjourney/Runway)
-- Editing (CapCut/Descript)
+# Generate thumbnails from video
+python scripts/video_pipeline.py video.mp4 --thumbnails --out-dir ./thumbs
+```
 
-### Phase 4: Publishing
-- SEO-optimized title/description
-- Thumbnail (AI-generated)
-- Scheduled posts (3x/week)
+## 📁 Structure
 
-## Agent System
+```
+neuro-finance-pipeline/
+├── agents/              # AI agents for research and scoring
+│   ├── idea_mining.py      # Main idea mining orchestrator
+│   ├── RESEARCH-AGENT.md   # Research agent spec
+│   ├── SCORING-AGENT.md    # Scoring agent spec
+│   └── YT-AGENT.md         # YouTube analysis agent spec
+├── scripts/             # Production scripts
+│   ├── video_pipeline.py   # FFmpeg video processing
+│   └── generate-thumbnails.sh
+├── templates/           # Video templates and assets
+├── output/              # Generated content (gitignored)
+└── .github/workflows/   # CI/CD automation
+```
 
-| Agent | Role | Frequency |
-|-------|------|-----------|
-| **YT Agent** | YouTube comment + competitor analysis | Daily |
-| **Research Agent** | Web/X trend scanning | Daily |
-| **Scoring Agent** | Rank ideas by confidence | Daily |
-| **Script Agent** | Generate video scripts | Per video |
-| **Thumbnail Agent** | Create thumbnails | Per video |
+## 🤖 GitHub Actions
 
-## Success Metrics
+| Workflow | Trigger | Description |
+|----------|---------|-------------|
+| **Validate** | Push/PR | Lint and test Python scripts |
+| **Idea Mining** | Daily 6 AM UTC | Run agents and commit results |
+| **Test Pipeline** | Manual | Test FFmpeg video processing |
+| **Release** | Version tag | Create GitHub release |
+
+## 🔧 Required Secrets
+
+Set these in GitHub repo Settings → Secrets:
+
+- `OPENAI_API_KEY` — For script generation
+- `YOUTUBE_API_KEY` — For comment/competitor analysis
+- `ANTHROPIC_API_KEY` — Alternative LLM (optional)
+
+## 📝 Content Pillars
+
+1. **Cognitive Biases in Trading** — Why your brain sabotages trades
+2. **Market Psychology** — Fear, greed, and herd behavior
+3. **Money Mindset** — Scarcity vs. abundance, wealth psychology
+
+## 📊 Success Metrics
 
 | Milestone | Target | Timeline |
 |-----------|--------|----------|
 | First video | 1 published | Week 1 |
 | 10 videos | 10 published | Month 1 |
-| 1K subscribers | 1,000 subs | Month 2 |
 | Monetization | 4K watch hours | Month 3 |
-| $1K/month | Ad + affiliate revenue | Month 4 |
-| $5K/month | Scaled production | Month 6 |
+| $1K/month | Ad + affiliate | Month 4 |
 
-## Next Steps
+## 🤝 Contributing
 
-1. [ ] Run first Idea Mining scan
-2. [ ] Create channel (YouTube)
-3. [ ] Set up ElevenLabs voice
-4. [ ] Produce first 3 videos
-5. [ ] Launch and iterate
+1. Fork the repo
+2. Create a feature branch
+3. Make changes
+4. Push and open a PR
+
+The CI will validate your Python code automatically.
+
+## 📜 License
+
+MIT — See [LICENSE](LICENSE) for details.
 
 ---
 
