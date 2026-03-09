@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-YouTube Scraper Agent - Main Orchestrator
-Runs the full pipeline: Discover → Research → Script
+YouTube Scraper Agent - Main Orchestrator (COST ANALYSIS CHANNEL)
+Runs the full pipeline: Discover → Research → Cost Breakdown Script
 """
 
 import subprocess
@@ -12,7 +12,7 @@ from pathlib import Path
 # Import modules
 sys.path.insert(0, str(Path(__file__).parent))
 from scraper import discover_opportunities, generate_discovery_report, OUTPUT_DIR
-from script_writer import write_script, save_script
+from script_writer_cost import write_cost_analysis_script, save_script
 
 
 def main():
@@ -119,50 +119,57 @@ Instead of [what original did], focus on:
     research_path.write_text(research_content)
     print(f"✅ Research notes saved: {research_path}")
     
-    # Phase 3: Script Writing
+    # Phase 3: Cost Analysis Script Writing
     print()
-    print("📍 PHASE 3: SCRIPT WRITING")
+    print("📍 PHASE 3: COST BREAKDOWN SCRIPT")
     print("-" * 70)
     
-    # Derive script parameters from research
-    script_topic = f"How to {topic.split(' | ')[0].split(' - ')[0][:50]}"
-    script_angle = f"The {channel}-inspired approach that actually works (with improvements)"
-    script_points = [
-        f"Why most people fail at {topic.split()[0]}",
-        "The validation framework that saves months",
-        "Step-by-step implementation guide",
-        "Real results and case studies"
+    # Extract product name from top video
+    product_name = topic.replace("How Much Does ", "").replace(" Cost?", "").replace(" Cost", "").split(" | ")[0][:40]
+    if not product_name:
+        product_name = "Product Cost Breakdown"
+    
+    print(f"Generating cost analysis script for: {product_name}")
+    
+    # Default components (user fills in with research)
+    default_components = [
+        ("Component 1", "$XX", "XX%"),
+        ("Component 2", "$XX", "XX%"),
+        ("Component 3", "$XX", "XX%"),
+        ("Component 4", "$XX", "XX%"),
+        ("Component 5", "$XX", "XX%"),
+        ("Other Components", "$XX", "XX%")
     ]
     
-    print(f"Generating script: {script_topic}")
-    
-    script_content = write_script(
-        topic=script_topic,
-        angle=script_angle,
-        key_points=script_points,
-        target_duration=10
+    script_content = write_cost_analysis_script(
+        product=product_name,
+        retail_price="$XXX",
+        estimated_cost="$XXX",
+        key_components=default_components,
+        target_duration=12
     )
     
-    script_path = save_script(script_topic, script_content)
+    script_path = save_script(product_name, script_content)
     
-    print(f"✅ Script saved: {script_path}")
+    print(f"✅ Cost breakdown script saved: {script_path}")
     
     # Summary
     print()
     print("=" * 70)
-    print("🎉 PIPELINE COMPLETE!")
+    print("🎉 COST ANALYSIS PIPELINE COMPLETE!")
     print("=" * 70)
     print()
     print("Files generated:")
     print(f"  📊 Discovery: {report_path}")
     print(f"  🔍 Research:  {research_path}")
-    print(f"  📝 Script:    {script_path}")
+    print(f"  💰 Script:    {script_path}")
     print()
     print("Next steps:")
-    print("  1. Review the discovery report")
-    print("  2. Customize the research notes")
-    print("  3. Record using the script")
-    print("  4. Create thumbnail per the concept")
+    print("  1. Review discovery report for cost breakdown opportunities")
+    print("  2. Research actual component costs (iFixit, TechInsights)")
+    print("  3. Fill in the $XXX placeholders with real numbers")
+    print("  4. Record using the cost breakdown script template")
+    print("  5. Create thumbnail with price contrast visual")
     print()
 
 

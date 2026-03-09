@@ -16,15 +16,23 @@ from typing import Optional
 OUTPUT_DIR = Path("/root/.openclaw/workspace/projects/youtube-scraper-agent")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-# Target niches to research
+# Target niches to research - COST ANALYSIS / PRODUCT BREAKDOWN CHANNEL
 TARGET_NICHES = [
-    "AI tools tutorial",
-    "SaaS startup",
-    "no-code automation",
-    "productivity workflow",
-    "Chrome extension",
-    "passive income",
-    "indie hacker"
+    "how much does it cost to make",
+    "product cost breakdown",
+    "manufacturing cost analysis",
+    "why is [product] so expensive",
+    "cost of goods sold breakdown",
+    "supply chain cost analysis",
+    "iphone cost breakdown",
+    "tesla cost to build",
+    "sneaker manufacturing cost",
+    "coffee shop cost breakdown",
+    "restaurant food cost analysis",
+    "ev battery cost breakdown",
+    "pharmaceutical drug cost",
+    "airline ticket cost breakdown",
+    "streaming service cost breakdown"
 ]
 
 
@@ -160,43 +168,57 @@ def analyze_video(video_data: dict) -> dict:
 
 
 def score_opportunity(video: dict) -> float:
-    """Score a video opportunity (0-100)."""
+    """Score a video opportunity for COST ANALYSIS channel (0-100)."""
     score = 0
+    title = video.get('title', '').lower()
+    tags = [t.lower() for t in video.get('tags', [])]
+    description = video.get('description', '').lower()
     
-    # High views with low subscribers = viral potential
+    # COST ANALYSIS KEYWORDS - High priority
+    cost_keywords = ['cost', 'breakdown', 'how much', 'expensive', 'price', 
+                     'manufacturing', 'production', 'margin', 'profit', 'bill of materials',
+                     'bom', 'supply chain', 'economics', 'business model']
+    keyword_matches = sum(1 for kw in cost_keywords if kw in title or kw in description)
+    score += min(keyword_matches * 8, 25)  # Up to 25 points for cost focus
+    
+    # High views with low subscribers = viral potential (strong for cost content)
     if video.get('vps_ratio', 0) > 10:
-        score += 30
+        score += 25
     elif video.get('vps_ratio', 0) > 5:
-        score += 20
+        score += 18
     elif video.get('vps_ratio', 0) > 2:
         score += 10
     
-    # Recent uploads with high velocity
+    # Recent uploads with high velocity (cost analysis ages well but fresh is better)
     if video.get('views_per_day', 0) > 10000:
-        score += 25
+        score += 20
     elif video.get('views_per_day', 0) > 5000:
         score += 15
     elif video.get('views_per_day', 0) > 1000:
         score += 10
     
-    # Recency bonus (last 30 days)
+    # Recency bonus - cost breakdowns of NEW products = high search
     if video.get('days_since_upload', 999) <= 7:
-        score += 20
+        score += 15
     elif video.get('days_since_upload', 999) <= 30:
-        score += 15
+        score += 12
     elif video.get('days_since_upload', 999) <= 90:
-        score += 10
+        score += 8
     
-    # Duration sweet spot (8-15 min for monetization)
+    # Duration sweet spot for cost analysis (10-20 min for depth)
     duration = video.get('duration', 0) or 0
-    if 480 <= duration <= 900:  # 8-15 minutes
+    if 600 <= duration <= 1200:  # 10-20 minutes - ideal for cost breakdowns
         score += 15
+    elif 480 <= duration <= 900:  # 8-15 minutes
+        score += 12
     elif 300 <= duration <= 600:  # 5-10 minutes
-        score += 10
+        score += 8
     
-    # Has good tags/description = SEO optimized
-    if len(video.get('tags', [])) >= 5:
-        score += 10
+    # Product/brand mentions = searchable content
+    product_keywords = ['iphone', 'tesla', 'nike', 'apple', 'samsung', 'amazon', 
+                        'starbucks', 'mcdonalds', 'airlines', 'pharma']
+    product_matches = sum(1 for kw in product_keywords if kw in title or kw in tags)
+    score += min(product_matches * 5, 15)
     
     return min(score, 100)
 
